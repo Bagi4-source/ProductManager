@@ -27,8 +27,6 @@ def parse_spu(pk):
 
     if 'spuId' in product.spu_id:
         product.spu_id = product.spu_id.split('spuId=')[-1].split('&')[0]
-
-        product.spu_id = re.sub(r'\D', '', product.spu_id)
         product.save()
 
 

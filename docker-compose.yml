@@ -1,28 +1,23 @@
 version: '3.9'
 # docker network create --gateway 192.168.10.1 --subnet 192.168.10.0/24 backend
 services:
-  db:
+  postgres:
     image: postgres
     restart: always
     ports:
-      - "5432:5432"
+      - 5432
     environment:
       POSTGRES_DB: "db"
       POSTGRES_USER: "postgres"
       POSTGRES_PASSWORD: "sgucr+cq*y"
-    networks:
-      backend:
-        ipv4_address: 192.168.10.4
   server:
     image: german/dewu_server
     build: .
-    command: bash -c "python3 manage.py makemigrations && python3 manage.py migrate && echo \"from django.contrib.auth import get_user_model; User = get_user_model(); User.objects.filter(username='german').exists() or User.objects.create_superuser('admin', 'admin@myproject.com', 'germanAdmin')\" | python manage.py shell && python3 manage.py runserver 0.0.0.0:8000"
+    command: bash -c "python3 manage.py makemigrations && python3 manage.py migrate && echo \"from django.contrib.auth import get_user_model; User = get_user_model(); User.objects.filter(username='admin').exists() or User.objects.create_superuser('admin', 'admin@myproject.com', 'germanAdmin')\" | python manage.py shell && python3 manage.py runserver 0.0.0.0:8000"
     ports:
       - "8000:8000"
     depends_on:
-      - db
-    volumes:
-      - static_volume:static
+      - postgres
     environment:
       SECRET_KEY: 'django-insecure-g48yzb4du^qr(25^g#6if1j%29lmq39&x1^v6&f=ftx4bj*07*'
       DEBUG: 1
@@ -30,70 +25,60 @@ services:
       POSTGRES_DBNAME: 'db'
       POSTGRES_USER: 'postgres'
       POSTGRES_PASSWORD: "sgucr+cq*y"
-      POSTGRES_HOST: '192.168.10.4'
+      POSTGRES_HOST: 'postgres'
       POSTGRES_PORT: '5432'
       TIME_ZONE: 'UTC'
       LANGUAGE_CODE: 'ru'
       API_PAGE_SIZE: 50
       API_URL: 'http://158.160.36.22:3000/'
-      REDIS_HOST: 'localhost'
+      REDIS_HOST: 'redis'
       REDIS_PORT: '6379'
-    networks:
-      backend:
-        ipv4_address: 192.168.10.3
     restart: always
-#  redis:
-#    restart: always
-#    image: redis:7.0.5-alpine
-#    expose:
-#      - 6379
-#  tms:
-#    restart: always
-#    build: .
-#    entrypoint: worker-entrypoint.sh
-#    volumes:
-#      - static_volume:static
-#    environment:
-#      SECRET_KEY: 'django-insecure-g48yzb4du^qr(25^g#6if1j%29lmq39&x1^v6&f=ftx4bj*07*'
-#      DEBUG: 1
-#      DJANGO_ALLOWED_HOSTS: '*'
-#      POSTGRES_DBNAME: 'db'
-#      POSTGRES_USER: 'postgres'
-#      POSTGRES_PASSWORD: "sgucr+cq*y"
-#      POSTGRES_HOST: '192.168.10.4'
-#      POSTGRES_PORT: '5432'
-#      TIME_ZONE: 'UTC'
-#      LANGUAGE_CODE: 'ru'
-#      API_PAGE_SIZE: 50
-#      API_URL: 'http://158.160.36.22:3000/'
-#      REDIS_HOST: 'localhost'
-#      REDIS_PORT: '6379'
-#    depends_on:
-#      - server
-#      - redis
-#  beat:
-#    restart: always
-#    build: .
-#    entrypoint: beat-entrypoint.sh
-#    volumes:
-#      - static_volume:static
-#    environment:
-#      SECRET_KEY: 'django-insecure-g48yzb4du^qr(25^g#6if1j%29lmq39&x1^v6&f=ftx4bj*07*'
-#      DEBUG: 1
-#      DJANGO_ALLOWED_HOSTS: '*'
-#      POSTGRES_DBNAME: 'db'
-#      POSTGRES_USER: 'postgres'
-#      POSTGRES_PASSWORD: "sgucr+cq*y"
-#      POSTGRES_HOST: '192.168.10.4'
-#      POSTGRES_PORT: '5432'
-#      TIME_ZONE: 'UTC'
-#      LANGUAGE_CODE: 'ru'
-#      API_PAGE_SIZE: 50
-#      API_URL: 'http://158.160.36.22:3000/'
-#      REDIS_HOST: 'localhost'
-#      REDIS_PORT: '6379'
-#    depends_on:
-#      - tms
-networks:
-  backend:
-    external: true
+  redis:
+    restart: always
+    image: redis:7.2-rc
+    expose:
+      - 6379
+  tms:
+    restart: always
+    build: .
+    command: celery -A Dewu worker -l info --concurrency 8 -E
+    environment:
+      SECRET_KEY: 'django-insecure-g48yzb4du^qr(25^g#6if1j%29lmq39&x1^v6&f=ftx4bj*07*'
+      DEBUG: 1
+      DJANGO_ALLOWED_HOSTS: '*'
+      POSTGRES_DBNAME: 'db'
+      POSTGRES_USER: 'postgres'
+      POSTGRES_PASSWORD: "sgucr+cq*y"
+      POSTGRES_HOST: 'postgres'
+      POSTGRES_PORT: '5432'
+      TIME_ZONE: 'UTC'
+      LANGUAGE_CODE: 'ru'
+      API_PAGE_SIZE: 50
+      API_URL: 'http://158.160.36.22:3000/'
+      REDIS_HOST: 'redis'
+      REDIS_PORT: '6379'
+    depends_on:
+      - server
+      - redis
+  beat:
+    restart: always
+    build: .
+    command: 'celery -A Dewu beat -l info'
+    environment:
+      SECRET_KEY: 'django-insecure-g48yzb4du^qr(25^g#6if1j%29lmq39&x1^v6&f=ftx4bj*07*'
+      DEBUG: 1
+      DJANGO_ALLOWED_HOSTS: '*'
+      POSTGRES_DBNAME: 'db'
+      POSTGRES_USER: 'postgres'
+      POSTGRES_PASSWORD: "sgucr+cq*y"
+      POSTGRES_HOST: 'postgres'
+      POSTGRES_PORT: '5432'
+      TIME_ZONE: 'UTC'
+      LANGUAGE_CODE: 'ru'
+      API_PAGE_SIZE: 50
+      API_URL: 'http://158.160.36.22:3000/'
+      REDIS_HOST: 'redis'
+      REDIS_PORT: '6379'
+    depends_on:
+      - tms

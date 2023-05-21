@@ -8,7 +8,6 @@ from django import forms
 from import_export.admin import ImportExportModelAdmin
 
 
-
 class ProductsAdminForm(forms.ModelForm):
     spu_id = forms.CharField(widget=forms.TextInput(attrs={'placeholder': 'spu_id или ссылка'}), label="spuId / URL")
     override_title = forms.CharField(widget=forms.TextInput(attrs={'placeholder': 'Замена названия'}), label="Название",
@@ -61,18 +60,3 @@ class ProductsAdmin(ImportExportModelAdmin):
         if obj:
             return ('spu_id',) + self.readonly_fields
         return self.readonly_fields
-
-
-@receiver(post_save, sender=Products)
-def my_callback(sender, instance, *args, **kwargs):
-    try:
-        pass
-        # if 'https://dw4.co/t' in instance.spu_id:
-        #     r = requests.get(instance.spu_id)
-        #     instance.spu_id = r.url
-        # if 'spuId' in instance.spu_id:
-        #     instance.spu_id = instance.spu_id.split('spuId=')[-1].split('&')[0]
-        # instance.spu_id = re.sub(r'\D', '', instance.spu_id)
-        # requests.post(f'{API_URL}parse/', json=[instance.spu_id])
-    except Exception as e:
-        logging.error(e)
