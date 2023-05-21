@@ -1,0 +1,19 @@
+import os
+from celery import Celery
+from celery.schedules import crontab
+
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "Dewu.settings")
+app = Celery("Dewu")
+app.config_from_object("django.conf:settings", namespace="CELERY")
+app.autodiscover_tasks()
+
+app.conf.beat_schedule = {
+    'changeLink': {
+        'task': 'API.tasks.change_link',
+        'schedule': crontab(),
+    },
+    'parseSPUs': {
+        'task': 'API.tasks.parse_spu_ids',
+        'schedule': crontab(hour=2),
+    },
+}
