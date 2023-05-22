@@ -11,7 +11,6 @@ services:
       POSTGRES_USER: "postgres"
       POSTGRES_PASSWORD: "sgucr+cq*y"
   server:
-    image: german/dewu_server
     build: .
     command: bash -c "python3 manage.py makemigrations && python3 manage.py migrate && echo \"from django.contrib.auth import get_user_model; User = get_user_model(); User.objects.filter(username='admin').exists() or User.objects.create_superuser('admin', 'admin@myproject.com', 'germanAdmin')\" | python manage.py shell && python3 manage.py runserver 0.0.0.0:8000"
     ports:
@@ -29,7 +28,7 @@ services:
       POSTGRES_HOST: 'postgres'
       POSTGRES_PORT: '5432'
       TIME_ZONE: 'UTC'
-      LANGUAGE_CODE: 'ru'
+      LANGUAGE_CODE: 'en'
       API_PAGE_SIZE: 50
       API_URL: 'http://158.160.36.22:3000/'
       REDIS_HOST: 'redis'
@@ -44,21 +43,6 @@ services:
     restart: always
     build: .
     command: celery -A Dewu worker -l info --concurrency 8 -E
-    environment:
-      SECRET_KEY: 'django-insecure-g48yzb4du^qr(25^g#6if1j%29lmq39&x1^v6&f=ftx4bj*07*'
-      DEBUG: 1
-      DJANGO_ALLOWED_HOSTS: '*'
-      POSTGRES_DBNAME: 'db'
-      POSTGRES_USER: 'postgres'
-      POSTGRES_PASSWORD: "sgucr+cq*y"
-      POSTGRES_HOST: 'postgres'
-      POSTGRES_PORT: '5432'
-      TIME_ZONE: 'UTC'
-      LANGUAGE_CODE: 'ru'
-      API_PAGE_SIZE: 50
-      API_URL: 'http://158.160.36.22:3000/'
-      REDIS_HOST: 'redis'
-      REDIS_PORT: '6379'
     depends_on:
       - server
       - redis
@@ -66,20 +50,5 @@ services:
     restart: always
     build: .
     command: 'celery -A Dewu beat -l info'
-    environment:
-      SECRET_KEY: 'django-insecure-g48yzb4du^qr(25^g#6if1j%29lmq39&x1^v6&f=ftx4bj*07*'
-      DEBUG: 1
-      DJANGO_ALLOWED_HOSTS: '*'
-      POSTGRES_DBNAME: 'db'
-      POSTGRES_USER: 'postgres'
-      POSTGRES_PASSWORD: "sgucr+cq*y"
-      POSTGRES_HOST: 'postgres'
-      POSTGRES_PORT: '5432'
-      TIME_ZONE: 'UTC'
-      LANGUAGE_CODE: 'ru'
-      API_PAGE_SIZE: 50
-      API_URL: 'http://158.160.36.22:3000/'
-      REDIS_HOST: 'redis'
-      REDIS_PORT: '6379'
     depends_on:
       - tms
