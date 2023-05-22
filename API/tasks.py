@@ -1,12 +1,7 @@
-import asyncio
-import re
-from threading import Thread
 from datetime import datetime, timedelta, timezone
 import requests
-from aiohttp import ClientSession
 from celery import shared_task
 from API.models import Products
-from asgiref.sync import sync_to_async
 from Dewu.settings import PARSE_PERIOD, API_URL
 
 
@@ -32,8 +27,12 @@ def parse_spu(pk):
     if 'spuId' in product.spu_id:
         product.spu_id = product.spu_id.split('spuId=')[-1].split('&')[0]
         product.save()
-        url = f"{API_URL}parse/"
-        requests.post(url, json=[product.spu_id])
+        print('save product')
+        try:
+            url = f"{API_URL}parse/"
+            requests.post(url, json=[product.spu_id])
+        except Exception as e:
+            print(e)
 
 
 @shared_task()
