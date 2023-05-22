@@ -21,6 +21,7 @@ services:
     environment:
       SECRET_KEY: 'django-insecure-g48yzb4du^qr(25^g#6if1j%29lmq39&x1^v6&f=ftx4bj*07*'
       DEBUG: 1
+      PARSE_PERIOD: 12 # PARSE_PERIOD in hours
       DJANGO_ALLOWED_HOSTS: '*'
       POSTGRES_DBNAME: 'db'
       POSTGRES_USER: 'postgres'
