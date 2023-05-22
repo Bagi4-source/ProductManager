@@ -20,24 +20,6 @@ class ProductsAdminForm(forms.ModelForm):
         fields = '__all__'
 
 
-#
-# def divide_chunks(l, n):
-#     for i in range(0, len(l), n):
-#         yield l[i:i + n]
-
-
-# async def parse_spu_ids(dataset):
-#     coroutines = []
-#     result = []
-#     connector = TCPConnector(limit=100)
-#     for spu in dataset['spu_id']:
-#         coroutines.append(parse_spu((connector, spu)))
-#     r = await asyncio.gather(*coroutines)
-#     print(r)
-#     result.extend(r)
-#     return result
-
-
 class ProductsResource(ModelResource):
     class Meta:
         model = Products
