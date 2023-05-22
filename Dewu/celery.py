@@ -11,7 +11,7 @@ app.autodiscover_tasks()
 app.conf.beat_schedule = {
     'changeLink': {
         'task': 'API.tasks.change_link',
-        'schedule': crontab(minute=1),
+        'schedule': crontab(),
     },
     'parseSPUs': {
         'task': 'API.tasks.parse_spu_ids',
