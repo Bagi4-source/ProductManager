@@ -13,8 +13,11 @@ def parse_spu_ids():
         if product.spu_id.strip().isdigit() and now - product.create_time >= timedelta(hours=PARSE_PERIOD):
             products.append(product.spu_id.strip())
     print(products)
-    url = f"{API_URL}parse/"
-    requests.post(url, json=products)
+    try:
+        url = f"{API_URL}parse/"
+        requests.post(url, json=products)
+    except Exception as e:
+        print(e)
 
 
 @shared_task()
@@ -27,7 +30,6 @@ def parse_spu(pk):
     if 'spuId' in product.spu_id:
         product.spu_id = product.spu_id.split('spuId=')[-1].split('&')[0]
         product.save()
-        print('save product')
         try:
             url = f"{API_URL}parse/"
             requests.post(url, json=[product.spu_id])
