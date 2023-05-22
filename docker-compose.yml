@@ -43,7 +43,7 @@ services:
   tms:
     restart: always
     build: .
-    command: bash -c "python3 manage.py makemigrations && python3 manage.py migrate && celery -A Dewu worker -l info --concurrency 8 -E"
+    command: celery -A Dewu worker -l info --concurrency 8 -E
     environment:
       SECRET_KEY: 'django-insecure-g48yzb4du^qr(25^g#6if1j%29lmq39&x1^v6&f=ftx4bj*07*'
       DEBUG: 1
@@ -66,7 +66,7 @@ services:
   beat:
     restart: always
     build: .
-    command: bash -c "python3 manage.py makemigrations && python3 manage.py migrate && celery -A Dewu beat -l info"
+    command: celery -A Dewu beat -l info
     environment:
       SECRET_KEY: 'django-insecure-g48yzb4du^qr(25^g#6if1j%29lmq39&x1^v6&f=ftx4bj*07*'
       DEBUG: 1
